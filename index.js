@@ -12,14 +12,35 @@ app.use(express.json());
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.vqMOj7AIqtHCWKsY}@cluster0.gdyfp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.gdyfp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  console.log('mongo db is connect')
-  client.close();
-});
+
+async function run() {
+
+  try {
+    await client.connect();
+    const carCollection = client.db("royal-cars").collection("cars");
+
+
+   app.get('/products',async(req, res) => {
+    const query = {};
+    const cursor = carCollection.find(query);
+    const product=await cursor.toArray();
+    res.send(product);
+   })
+  }
+ 
+
+finally{}
+}
+run().catch(console.dir);
+
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   console.log('mongo db is connect')
+//   client.close();
+// });
 
 
 
