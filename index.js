@@ -4,7 +4,7 @@ const app=express();
 const { MongoClient, ServerApiVersion , ObjectId } = require('mongodb');
 
 require('dotenv').config()
-const port =process.env.PORT || 5000 ;
+let port =process.env.PORT || 5000 ;
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +25,7 @@ async function run() {
    app.get('/products',async(req, res) => {
     const query = {};
     const cursor = carCollection.find(query);
-    const product=await cursor.toArray();
+    const product=await cursor.limit(6).toArray();
     res.send(product);
    })
 
@@ -54,6 +54,15 @@ async function run() {
      const result = await carCollection.updateOne(filter, updatedDoc, options);
      res.send(result);
    })
+
+app.post('/products', async (req, res)=>{
+  const newUser=req.body;
+  console.log('ok' ,req.body)
+  const result = await carCollection.insertOne(newUser);
+
+res.send(result);
+})
+
 
 
   
