@@ -21,6 +21,8 @@ async function run() {
     await client.connect();
     const carCollection = client.db("royal-cars").collection("cars");
 
+    // load all product
+
     app.get("/products", async (req, res) => {
       const query = {};
       const cursor = carCollection.find(query);
@@ -28,30 +30,51 @@ async function run() {
       res.send(product);
     });
 
+    // findOne
+
     app.get("/products/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await carCollection.findOne(query);
-      console.log(result);
+      // console.log(result);
       res.send(result);
     });
+
+
+// find product by email address
+
+// app.get("/products", async (req, res) => {
+//   const email = req.query.email;
+//   const query = { email:email };
+//   // const result = await carCollection.find(query);
+//   const cursor = carCollection.find(query);
+//   const product = await cursor.toArray();
+//   console.log(product);
+//   res.send(product);
+// });
+
+    // update api
+
     app.put("/products/:id", async (req, res) => {
-      //  console.log(req)
+       console.log(req)
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updatedQuantity = req.body;
-      console.log(updatedQuantity);
+      // console.log(updatedQuantity);
       //  res.send(updatedUser)
 
       const updatedDoc = {
         $set: {
-          quantity: updatedQuantity.updateQuantity2,
+          quantity: updatedQuantity.new_quantity ? updatedQuantity.new_quantity : updatedQuantity.updateQuantity2,
+          // quantity: updatedQuantity.updateQuantity2,
         },
       };
       const result = await carCollection.updateOne(filter, updatedDoc, options);
       res.send(result);
     });
+
+    // post products
 
     app.post("/products", async (req, res) => {
       const newUser = req.body;
@@ -60,6 +83,8 @@ async function run() {
 
       res.send(result);
     });
+
+    // delete item
 
     app.delete('/products/:id', async(req, res) =>{
       const id = req.params.id;
