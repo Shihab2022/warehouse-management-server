@@ -20,6 +20,7 @@ async function run() {
   try {
     await client.connect();
     const carCollection = client.db("royal-cars").collection("cars");
+    const userAddItem = client.db("royal-cars").collection("userCollection");
 
     // load all product
 
@@ -41,29 +42,15 @@ async function run() {
     });
 
 
-// find product by email address
-
-// app.get("/products", async (req, res) => {
-//   const email = req.query.email;
-//   const query = { email:email };
-//   // const result = await carCollection.find(query);
-//   const cursor = carCollection.find(query);
-//   const product = await cursor.toArray();
-//   console.log(product);
-//   res.send(product);
-// });
 
     // update api
 
     app.put("/products/:id", async (req, res) => {
-       console.log(req)
+      //  console.log(req)
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updatedQuantity = req.body;
-      // console.log(updatedQuantity);
-      //  res.send(updatedUser)
-
       const updatedDoc = {
         $set: {
           quantity: updatedQuantity.new_quantity ? updatedQuantity.new_quantity : updatedQuantity.updateQuantity2,
@@ -78,11 +65,32 @@ async function run() {
 
     app.post("/products", async (req, res) => {
       const newUser = req.body;
-      console.log("ok", req.body);
+      // console.log("ok", req.body);
       const result = await carCollection.insertOne(newUser);
 
       res.send(result);
     });
+
+    // user post
+    app.post("/userAddCollection", async (req, res) => {
+      const newUser = req.body;
+      // console.log("ok", req.body);
+      const result = await userAddItem.insertOne(newUser);
+
+      res.send(result);
+    });
+
+// load data for user
+
+app.get('/userAddCollection',async(req,res) => {
+  const email=req.query.email;
+  // console.log(email)
+  const query = {email : email};
+  const cursor = userAddItem.find(query);
+  const orders=await cursor.toArray();
+  res.send(orders);
+
+})
 
     // delete item
 
@@ -92,6 +100,12 @@ async function run() {
       const result = await carCollection.deleteOne(query);
       res.send(result);
   })
+    app.delete('/userAddCollection/:id', async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const result = await userAddItem.deleteOne(query);
+      res.send(result);
+  })
 
 
   } finally {
@@ -99,12 +113,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
-//   console.log('mongo db is connect')
-//   client.close();
-// });
+
 
 app.get("/", (req, res) => {
   res.send("start project");
@@ -112,3 +121,5 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log("listening on port", port);
 });
+
+
